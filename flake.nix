@@ -6,20 +6,30 @@
   };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, self, ... }:
     let
       forEachSystem =
         f:
         nixpkgs.lib.genAttrs [ "aarch64-darwin" "aarch64-linux" ] (
-          system: f { pkgs = import nixpkgs { inherit system; }; }
+          system:
+          f {
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ self.overlays.default ];
+            };
+          }
         );
     in
     {
       packages = forEachSystem (
         { pkgs }:
         {
-          default = pkgs.callPackage ./package.nix { };
+          inherit (pkgs) acmsg;
         }
       );
+
+      overlays.default = final: prev: {
+        acmsg = prev.callPackage ./package.nix { };
+      };
     };
 }
