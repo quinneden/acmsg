@@ -1,0 +1,21 @@
+[project]
+name = "acmsg"
+version = "0.1.0"
+description = "Automatically generate git commit messages using AI."
+authors = [{ name = "quinneden", email = "quinn@qeden.dev" }]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = ["requests (>=2.32.3,<3.0.0)", "pyyaml (>=6.0.2,<7.0.0)"]
+
+[tool.poetry]
+packages = [{ include = "acmsg", from = "src" }]
+
+[tool.poetry.scripts]
+acmsg = "acmsg.__main__:main"
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.12.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
