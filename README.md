@@ -1,4 +1,4 @@
-# Git AI Commit Message Generator
+# AI Commit Message Generator (acmsg)
 
 A Python tool that automatically generates meaningful git commit messages using AI models through the OpenRouter API.
 
@@ -6,38 +6,56 @@ A Python tool that automatically generates meaningful git commit messages using 
 
 - Analyzes staged changes in your git repository
 - Generates contextual commit messages using AI
-- Supports multiple AI models via OpenRouter
+- Supports multiple AI models via [OpenRouter](https://openrouter.ai)
 - Automatically commits changes with generated message
-
-## Installation
-
-```bash
-pip install git-ai-commit
-```
 
 ## Prerequisites
 - [OpenRouter](https://openrouter.ai/) API Key
 
+## Installation
+
+### With Nix Flakes:
+```bash
+# Add this flake as an input
+inputs.acmsg.url = "github:quinneden/acmsg";
+
+# Add the overlay & include the package in your configuration
+nixpkgs.overlays = [ inputs.acmsg.overlays.default ];
+environment.systemPackages = [ pkgs.acmsg ];
+
+# Or just add the package directly
+environment.systemPackages = [ inputs.acmsg.packages.${pkgs.system}.acmsg ];
+```
+
 ## Usage
 
 ```bash
+# Save api_token configuration value
+$ acmsg config set api_token <token_value>
+
+# Optional: Change AI model
+acmsg config set model <model>
+
 # Stage your changes first
 git add <files>
 
-# Generate commit message and commit
-acmsg
+# Review message & commit
+$ acmsg commit
+Commit message:
 
-# Or just generate a message without committing
-git-commit-ai --preview
+feat(content): add portfolio site content
+
+
+Do you want to commit? (y/n):
 ```
 
 ## Configuration
 
-You can configure default settings in `~/.config/git-commit-ai/config.yaml`:
+You can also configure default settings in `~/.config/git-commit-ai/config.yaml`:
 
 ```yaml
-model: 'anthropic/claude-3-haiku:beta' # Default AI model
-max_tokens: 100            # Maximum length of commit message
+api_token: **-**-**-****************************************************************
+model: anthropic/claude-3-haiku:beta # Default model
 ```
 
 ## Contributing
