@@ -16,7 +16,7 @@ class OpenRouter:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a git commit message generator. Your job is to generate conventional commit messages based on the provided context. The commit message should be formatted according to the conventional commits specification."
+                        "content": "You are a git commit message generator. Your job is to generate conventional commit messages based on the provided context. The commit message should be formatted according to the conventional commits specification. The commit message should be less than 50 words in length."
                     },
                     {
                         "role": "user",
