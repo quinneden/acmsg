@@ -14,8 +14,6 @@ class GitUtils:
             capture_output=True, text=True)
         if git_status.returncode != 0:
             raise Exception(f"Git status failed:\n{git_status.stderr}")
-        elif not git_status.stdout.strip():
-            return ["Nothing to commit"]
         else:
             return git_status.stdout.strip().replace('\t', ' ').split('\n')
 
