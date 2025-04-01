@@ -10,7 +10,7 @@
     let
       forEachSystem =
         f:
-        nixpkgs.lib.genAttrs [ "aarch64-darwin" "aarch64-linux" ] (
+        nixpkgs.lib.genAttrs [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ] (
           system:
           f {
             pkgs = import nixpkgs {
@@ -31,8 +31,9 @@
       overlays.default = final: prev: {
         acmsg = prev.python3Packages.buildPythonPackage {
           name = "acmsg";
+          version = "0.1.0";
           format = "pyproject";
-          src = ./.;
+          src = self;
           propagatedBuildInputs = [
             (prev.python3.withPackages (
               ps: with ps; [

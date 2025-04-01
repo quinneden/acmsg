@@ -1,20 +1,26 @@
-# AI Commit Message Generator (acmsg)
+# ACMSG (automated commit message generator)
 
-A Python tool that automatically generates meaningful git commit messages using AI models through the OpenRouter API.
+A Python tool that generates meaningful git commit messages by calling AI models using the OpenRouter API.
 
 ## Features
 
 - Analyzes staged changes in your git repository
 - Generates contextual commit messages using AI
 - Supports multiple AI models via [OpenRouter](https://openrouter.ai)
-- Automatically commits changes with generated message
+- Optionally edit generated commit message
+- Automatically commits changes with generated message, if confirmed
 
 ## Prerequisites
-- [OpenRouter](https://openrouter.ai/) API Key
+- OpenRouter API Key
 
 ## Installation
 
-### With Nix Flakes:
+### with pipx:
+```bash
+pipx install acmsg
+```
+
+### with Nix flakes:
 ```bash
 # Add this flake as an input
 inputs.acmsg.url = "github:quinneden/acmsg";
@@ -41,12 +47,20 @@ git add <files>
 
 # Review message & commit
 $ acmsg commit
+
 Commit message:
 
-feat(content): add portfolio site content
+  chore: update README.md and poetry.lock
 
+  README.md:
+  - Change project title
+  - Update project description to clarify tool functionality
+  - Improve formatting and consistency
 
-Do you want to commit? (y/n):
+  poetry.lock:
+  - Update dependencies to latest versions
+
+Commit with this message? (y/n/e[dit]):
 ```
 
 ## Configuration

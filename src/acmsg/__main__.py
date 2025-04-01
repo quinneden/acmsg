@@ -48,8 +48,10 @@ def format_message(msg):
 
 def print_message(message):
     print(f"\n{Fore.LIGHTBLACK_EX}Commit message:{Style.RESET_ALL}\n")
-    print(f"  {message.replace('\n', '\n  ')}\n")
-
+    lines = message.splitlines()
+    for line in lines:
+        print(f"  {line}")
+    print()
 
 def prompt_for_action(message):
     prompt = (Fore.LIGHTBLACK_EX + "Commit with this message? (y/n/e[dit]): " + Style.RESET_ALL)
