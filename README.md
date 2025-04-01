@@ -55,7 +55,7 @@ You can also configure default settings in `~/.config/git-commit-ai/config.yaml`
 
 ```yaml
 api_token: **-**-**-****************************************************************
-model: anthropic/claude-3-haiku:beta # Default model
+model: deepseek/deepseek-r1:free # Default model
 ```
 
 ## Contributing
