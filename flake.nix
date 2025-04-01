@@ -29,7 +29,22 @@
       );
 
       overlays.default = final: prev: {
-        acmsg = prev.callPackage ./package.nix { };
+        acmsg = prev.python3Packages.buildPythonPackage {
+          name = "acmsg";
+          format = "pyproject";
+          src = ./.;
+          propagatedBuildInputs = [
+            (prev.python3.withPackages (
+              ps: with ps; [
+                colorama
+                pytest
+                requests
+                pyyaml
+                poetry-core
+              ]
+            ))
+          ];
+        };
       };
     };
 }
