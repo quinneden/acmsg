@@ -28,8 +28,9 @@ def handle_commit(args):
     try:
         response = OpenRouter.post_api_request(
             api_token, git_status, git_diff, model)
-        message = response.json()['choices'][0]['message']['content']
-        print(f"Commit message:\n\n{message}\n\n")
+        message = response.json(
+        )['choices'][0]['message']['content'].strip('\n')
+        print(f"Commit message:\n\n{message}\n")
         if yes_no("Do you want to commit?"):
             try:
                 GitUtils.git_commit(message)
