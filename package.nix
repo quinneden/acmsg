@@ -1,4 +1,5 @@
 { python3, python3Packages, ... }:
+
 python3Packages.buildPythonPackage {
   name = "acmsg";
   format = "pyproject";
@@ -6,6 +7,7 @@ python3Packages.buildPythonPackage {
   propagatedBuildInputs = [
     (python3.withPackages (
       ps: with ps; [
+        colorama
         pytest
         requests
         pyyaml
