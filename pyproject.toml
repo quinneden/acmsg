@@ -17,6 +17,14 @@ packages = [{ include = "acmsg", from = "src" }]
 [tool.poetry.scripts]
 acmsg = "acmsg.__main__:main"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-mock = "^3.14.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
