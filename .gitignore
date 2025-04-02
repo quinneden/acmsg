@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.ropeproject
 
 # Poetry
 poetry.lock
@@ -68,3 +69,5 @@ coverage.xml
 
 # Logs
 *.log
+
+codebase.md

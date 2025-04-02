@@ -19,6 +19,18 @@
             };
           }
         );
+
+      pythonEnv =
+        pkgs:
+        pkgs.python3.withPackages (
+          ps: with ps; [
+            colorama
+            pytest
+            requests
+            pyyaml
+            poetry-core
+          ]
+        );
     in
     {
       packages = forEachSystem (
@@ -35,17 +47,28 @@
           format = "pyproject";
           src = self;
           propagatedBuildInputs = [
-            (prev.python3.withPackages (
-              ps: with ps; [
-                colorama
-                pytest
-                requests
-                pyyaml
-                poetry-core
-              ]
-            ))
+            (pythonEnv prev)
           ];
         };
       };
+
+      devShells = forEachSystem (
+        { pkgs }:
+        {
+          default = pkgs.mkShell {
+            name = "acmsg";
+            packages = with pkgs.python3Packages; [
+              (pythonEnv pkgs)
+              venvShellHook
+              pytest
+              pytest-mock
+            ];
+            shellHook = ''
+              venvShellHook
+            '';
+            venvDir = ".venv";
+          };
+        }
+      );
     };
 }
