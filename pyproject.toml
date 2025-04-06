@@ -1,30 +1,29 @@
 [project]
 name = "acmsg"
 version = "0.1.0"
-description = "Automatically generate git commit messages using AI."
-authors = [{ name = "quinneden", email = "quinn@qeden.dev" }]
-readme = "README.md"
-requires-python = ">=3.12,<3.14"
+description = "Automatic git commit message generator using AI models & the OpenRouter API."
+requires-python = ">=3.12"
+keywords = [
+  "AI",
+  "artificial intelligence",
+  "commit message",
+  "commit",
+  "git",
+  "OpenRouter",
+]
+authors = [{ email = "quinn@qeden.dev" }, { name = "Quinn Edenfield" }]
+maintainers = [{ email = "quinn@qeden.dev" }, { name = "Quinn Edenfield" }]
 dependencies = [
   "requests (>=2.32.3,<3.0.0)",
   "pyyaml (>=6.0.2,<7.0.0)",
   "colorama (>=0.4.6,<0.5.0)",
 ]
 
-[tool.poetry]
-packages = [{ include = "acmsg", from = "src" }]
+[project.optional-dependencies]
+test = ["pytest >= 8.3.0", "pytest-mock >= 3.14.0"]
 
-[tool.poetry.scripts]
+[project.urls]
+repository = "https://github.com/quinneden/acmsg"
+
+[project.scripts]
 acmsg = "acmsg.__main__:main"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.5"
-pytest-mock = "^3.14.0"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"

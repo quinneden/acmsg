@@ -1,73 +1,68 @@
 {
-  description = "A command-line tool for generating git commit messages using AI and the OpenRouter API.";
+  description = "A basic flake using pyproject.toml project metadata";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    systems.url = "github:nix-systems/default";
+
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, self, ... }:
+    {
+      nixpkgs,
+      pyproject-nix,
+      systems,
+      self,
+      ...
+    }:
     let
-      forEachSystem =
-        f:
-        nixpkgs.lib.genAttrs [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ] (
-          system:
-          f {
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ self.overlays.default ];
-            };
-          }
-        );
+      project = pyproject-nix.lib.project.loadPyproject {
+        projectRoot = ./.;
+      };
 
-      pythonEnv =
-        pkgs:
-        pkgs.python3.withPackages (
-          ps: with ps; [
-            colorama
-            pytest
-            requests
-            pyyaml
-            poetry-core
-          ]
+      forAllSystems =
+        f:
+        nixpkgs.lib.genAttrs (import systems) (
+          system:
+          f rec {
+            pkgs = nixpkgs.legacyPackages.${system};
+            python = pkgs.python312;
+          }
         );
     in
     {
-      packages = forEachSystem (
-        { pkgs }:
+      devShells = forAllSystems (
+        { pkgs, python }:
         {
-          inherit (pkgs) acmsg;
+          default =
+            let
+              arg = project.renderers.withPackages { inherit python; };
+              pythonEnv = python.withPackages arg;
+            in
+            pkgs.mkShell { packages = [ pythonEnv ]; };
         }
       );
 
-      overlays.default = final: prev: {
-        acmsg = prev.python3Packages.buildPythonPackage {
-          name = "acmsg";
-          version = "0.1.0";
-          format = "pyproject";
-          src = self;
-          propagatedBuildInputs = [
-            (pythonEnv prev)
-          ];
-        };
-      };
+      packages = forAllSystems (
+        { python, ... }:
+        rec {
+          acmsg =
+            let
+              attrs = project.renderers.buildPythonPackage { inherit python; };
+            in
+            python.pkgs.buildPythonPackage attrs;
 
-      devShells = forEachSystem (
-        { pkgs }:
-        {
-          default = pkgs.mkShell {
-            name = "acmsg";
-            packages = with pkgs.python3Packages; [
-              (pythonEnv pkgs)
-              venvShellHook
-              pytest
-              pytest-mock
-            ];
-            shellHook = ''
-              venvShellHook
-            '';
-            venvDir = ".venv";
-          };
+          default = acmsg;
+        }
+      );
+
+      overlays.default = (
+        final: prev: {
+          acmsg = self.packages.${prev.system}.acmsg;
         }
       );
     };
