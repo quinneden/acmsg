@@ -1,0 +1,7 @@
+Generate a commit message for these changes:
+
+File changes:
+{git_status}
+
+Diff:
+{git_diff}
