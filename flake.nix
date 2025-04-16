@@ -24,6 +24,8 @@
         projectRoot = ./.;
       };
 
+      inherit (project.pyproject.project) version;
+
       forAllSystems =
         f:
         nixpkgs.lib.genAttrs (import systems) (
@@ -48,15 +50,16 @@
       );
 
       packages = forAllSystems (
-        { python, ... }:
+        { pkgs, python, ... }:
         rec {
+          default = acmsg;
           acmsg =
             let
               attrs = project.renderers.buildPythonPackage { inherit python; };
             in
             python.pkgs.buildPythonPackage attrs;
 
-          default = acmsg;
+          create-release = pkgs.callPackage ./scripts/create-release { inherit version; };
         }
       );
 
