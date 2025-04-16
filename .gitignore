@@ -1,4 +1,4 @@
 .direnv
 .venv
 **/__pycache__
-**/*.egg_info
+**/*.egg-info
