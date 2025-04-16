@@ -1,8 +1,11 @@
 import argparse
 import os
 import subprocess
+import sys
 import tempfile
 import textwrap
+import threading
+import time
 
 import colorama
 from colorama import Fore, Style
@@ -22,6 +25,26 @@ def yes_no(prompt):
         elif response in ["n", "no"]:
             return False
         print("Please enter 'y' or 'n'")
+
+
+def spinner(stop_event):
+    spinner_chars = ['.  ', '.. ', '...', '   ']
+    i = 0
+
+    sys.stdout.write('\033[?25l')
+    sys.stdout.flush()
+
+    try:
+        while not stop_event.is_set():
+            sys.stdout.write(
+                f"\r{Fore.LIGHTBLACK_EX}Generating commit message {spinner_chars[i % len(spinner_chars)]}{Style.RESET_ALL}\r"
+            )
+            sys.stdout.flush()
+            time.sleep(0.7)
+            i += 1
+    finally:
+        sys.stdout.write('\033[?25h')
+        sys.stdout.flush()
 
 
 def edit_message(msg):
@@ -89,9 +112,21 @@ def handle_commit(args):
         print(Fore.YELLOW + "Nothing to commit" + Style.RESET_ALL)
         exit(1)
 
-    try:
-        response = OpenRouter.post_api_request(api_token, git_status, git_diff, model)
+    stop_spinner = threading.Event()
+    spinner_thread = threading.Thread(target=spinner, args=(stop_spinner, ))
+    spinner_thread.start()
 
+    try:
+        response = OpenRouter.post_api_request(api_token, git_status, git_diff,
+                                               model)
+    finally:
+        stop_spinner.set()
+        spinner_thread.join()
+        # Clear the spinner line
+        sys.stdout.write("\r" + " " * 80 + "\r")
+        sys.stdout.flush()
+
+    try:
         message = response.json()["choices"][0]["message"]["content"]
         formatted_message = format_message(message)
         print_message(formatted_message)
@@ -128,17 +163,23 @@ def main():
     parser = argparse.ArgumentParser(prog="acmsg")
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
-    commit_parser = subparsers.add_parser("commit", help="Generate commit message")
-    commit_parser.add_argument("--model", type=str, help="Model to use for generation")
+    commit_parser = subparsers.add_parser("commit",
+                                          help="Generate commit message")
+    commit_parser.add_argument("--model",
+                               type=str,
+                               help="Model to use for generation")
 
-    config_parser = subparsers.add_parser("config", help="Configuration commands")
+    config_parser = subparsers.add_parser("config",
+                                          help="Configuration commands")
     config_subparsers = config_parser.add_subparsers(dest="config_command")
 
-    config_set = config_subparsers.add_parser("set", help="Set configuration values")
+    config_set = config_subparsers.add_parser("set",
+                                              help="Set configuration values")
     config_set.add_argument("param", choices=["api_token", "model"])
     config_set.add_argument("value", type=str, help="Parameter value")
 
-    config_get = config_subparsers.add_parser("get", help="Get configuration values")
+    config_get = config_subparsers.add_parser("get",
+                                              help="Get configuration values")
     config_get.add_argument("param", choices=["api_token", "model"])
 
     subparsers.add_parser("help", help="Show help")
