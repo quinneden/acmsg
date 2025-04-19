@@ -31,8 +31,8 @@
         nixpkgs.lib.genAttrs (import systems) (
           system:
           f rec {
-            pkgs = nixpkgs.legacyPackages.${system};
-            python = pkgs.python312;
+            pkgs = import nixpkgs { inherit system; };
+            python = pkgs.python313;
           }
         );
     in
@@ -49,6 +49,7 @@
               packages = [
                 pythonEnv
                 pkgs.uv
+                pkgs.python3
               ];
             };
         }
