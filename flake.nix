@@ -1,5 +1,5 @@
 {
-  description = "A basic flake using pyproject.toml project metadata";
+  description = "Automatic git commit message generator using AI models & the OpenRouter API";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -37,19 +37,19 @@
         );
     in
     {
+      inherit project;
       devShells = forAllSystems (
         { pkgs, python }:
         {
           default =
             let
-              arg = project.renderers.withPackages { inherit python; };
-              pythonEnv = python.withPackages arg;
+              deps = project.renderers.withPackages { inherit python; };
+              pythonEnv = python.withPackages deps;
             in
             pkgs.mkShell {
               packages = [
                 pythonEnv
                 pkgs.uv
-                pkgs.python3
               ];
             };
         }

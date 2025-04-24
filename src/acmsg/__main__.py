@@ -12,7 +12,7 @@ from colorama import Fore
 
 from .config import Config
 from .git_utils import GitUtils
-from .open_router import OpenRouter
+from .open_router import gen_completion
 
 colorama.init(autoreset=True)
 
@@ -104,20 +104,13 @@ def prompt_for_action(message):
 
 
 def handle_commit(args):
-    if not GitUtils.is_git_repo():
-        print(Fore.RED + "Error: not a git repository")
-        exit(1)
-
     cfg = Config()
     api_token = cfg.api_token
     model = args.model if args.model else cfg.model
-    git_status = GitUtils.git_status()
-    git_diff = GitUtils.git_diff()
 
-    if not git_status:
-        print(Fore.YELLOW + "Nothing to commit")
-        exit(1)
-    if not git_diff:
+    repo = GitUtils()
+
+    if not repo.files_status or not repo.diff:
         print(Fore.YELLOW + "Nothing to commit")
         exit(1)
 
@@ -126,11 +119,10 @@ def handle_commit(args):
     spinner_thread.start()
 
     try:
-        response = OpenRouter.post_api_request(api_token, git_status, git_diff, model)
+        response = gen_completion(api_token, repo.files_status, repo.diff, model)
     finally:
         stop_spinner.set()
         spinner_thread.join()
-        # Clear the spinner line
         sys.stdout.write("\r" + " " * 80 + "\r")
         sys.stdout.flush()
 

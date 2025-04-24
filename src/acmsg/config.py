@@ -38,7 +38,6 @@ class Config:
 
     def get_option(self, option):
         config_file = self.config_file
-
         with open(config_file, "r") as f:
             data = yaml.safe_load(f)
 

@@ -17,6 +17,7 @@ dependencies = [
   "requests (>=2.32.3,<3.0.0)",
   "pyyaml (>=6.0.2,<7.0.0)",
   "colorama (>=0.4.6,<0.5.0)",
+  "jinja2>=3.1.6",
 ]
 
 [project.urls]
@@ -28,3 +29,8 @@ acmsg = "acmsg.__main__:main"
 [build-system]
 requires = ["setuptools >= 78.1.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["acmsg"]
+include-package-data = true
