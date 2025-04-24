@@ -34,3 +34,8 @@ build-backend = "setuptools.build_meta"
 package-dir = { "" = "src" }
 packages = ["acmsg"]
 include-package-data = true
+
+[dependency-groups]
+dev = [
+    "ipython>=9.1.0",
+]

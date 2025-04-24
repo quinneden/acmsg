@@ -119,7 +119,7 @@ def handle_commit(args):
     spinner_thread.start()
 
     try:
-        response = gen_completion(api_token, repo.files_status, repo.diff, model)
+        message = gen_completion(api_token, repo.files_status, repo.diff, model)
     finally:
         stop_spinner.set()
         spinner_thread.join()
@@ -127,7 +127,6 @@ def handle_commit(args):
         sys.stdout.flush()
 
     try:
-        message = response.json()["choices"][0]["message"]["content"]
         formatted_message = format_message(message)
         print_message(formatted_message)
 

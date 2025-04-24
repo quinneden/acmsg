@@ -48,8 +48,9 @@
             in
             pkgs.mkShell {
               packages = [
-                pythonEnv
                 pkgs.uv
+                python
+                pythonEnv
               ];
             };
         }
