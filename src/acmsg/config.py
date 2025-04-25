@@ -17,7 +17,7 @@ class Config:
 
     def create_file_if_not_exists(self):
         config_file = f"{self.config_dir}/config.yaml"
-        data = {"api_token": "", "model": "deepseek/deepseek-r1:free"}
+        data = {"api_token": "", "model": "thudm/glm-4-32b:free"}
 
         if not os.path.exists(config_file):
             os.makedirs(self.config_dir, exist_ok=True)
