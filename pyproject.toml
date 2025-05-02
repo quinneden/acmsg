@@ -1,6 +1,6 @@
 [project]
 name = "acmsg"
-version = "0.2.0"
+version = "0.2.1"
 description = "Automatic git commit message generator using AI models & the OpenRouter API."
 requires-python = ">=3.12"
 keywords = [
@@ -36,6 +36,4 @@ packages = ["acmsg"]
 include-package-data = true
 
 [dependency-groups]
-dev = [
-    "ipython>=9.1.0",
-]
+dev = ["ipython>=9.1.0"]
