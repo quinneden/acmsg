@@ -1,6 +1,7 @@
-# ACMSG (automated commit message generator)
+# acmsg (automated commit message generator)
 
-A Python tool that generates meaningful git commit messages by calling AI models using the OpenRouter API.
+A cli tool written in Python that generates git commit messages using AI models
+through the OpenRouter API.
 
 ## Features
 
@@ -20,64 +21,58 @@ A Python tool that generates meaningful git commit messages by calling AI models
 pipx install acmsg
 ```
 
-### with Nix flakes:
+### with nix:
+using flakes, i.e. nixos/nix-darwin/home-manager:
 ```bash
-# Add this flake as an input
+# Add `acmsg` to your flake inputs
 inputs.acmsg.url = "github:quinneden/acmsg";
 
-# Add the overlay & include the package in your configuration
+# Add the nixpkgs overlay & include the package in your configuration
 nixpkgs.overlays = [ inputs.acmsg.overlays.default ];
 environment.systemPackages = [ pkgs.acmsg ];
+# or home.packages = [ pkgs.acmsg ];
 
-# Or just add the package directly
+# Or include the package directly from inputs
 environment.systemPackages = [ inputs.acmsg.packages.${pkgs.system}.acmsg ];
+```
+using a standalone profile:
+```bash
+$ nix profile install "github:quinneden/acmsg"
+# or run the command directly, without installation
+$ nix run "github:quinneden/acmsg" -- commit
+```
+
+## Configuration
+
+You can also configure default settings directly in `~/.config/acmsg/config.yaml`:
+
+```yaml
+api_token: <OPENROUTER_API_TOKEN>
+model: thudm/glm-4-32b:free # Default model
 ```
 
 ## Usage
 
 ```bash
-# Save api_token configuration value
+# Set api_token in config
 $ acmsg config set api_token <token_value>
 
-# Optional: Change AI model
-acmsg config set model <model>
+# Optionally, configure a different default model
+$ acmsg config set model <model>
 
-# Stage your changes first
-git add <files>
+# Stage your changes
+$ git add <files>
 
 # Review message & commit
 $ acmsg commit
+# output:
+  Commit message:
 
-Commit message:
+    fix(docs): fix typo in `README.md`
 
-  chore: update README.md and poetry.lock
-
-  README.md:
-  - Change project title
-  - Update project description to clarify tool functionality
-  - Improve formatting and consistency
-
-  poetry.lock:
-  - Update dependencies to latest versions
-
-Commit with this message? (y/n/e[dit]):
+  Commit with this message? (y/n/e[dit]):
 ```
-
-## Configuration
-
-You can also configure default settings in `~/.config/git-commit-ai/config.yaml`:
-
-```yaml
-api_token: **-**-**-****************************************************************
-model: deepseek/deepseek-r1:free # Default model
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Submit a Pull Request
 
 ## License
 
-MIT License - See LICENSE file for details
+acmsg is licenced under the MIT License, as included in the [LICENSE](LICENSE) file.
