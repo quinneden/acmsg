@@ -8,24 +8,13 @@ import threading
 import time
 
 import colorama
-from colorama import Fore
+from colorama import Fore, Style
 
 from .config import Config
 from .git_utils import GitUtils
 from .open_router import gen_completion
 
-colorama.init(autoreset=True)
-
-
-def yes_no(prompt):
-    while True:
-        response = input(prompt + " (y/n): ").lower().strip()
-        if response in ["y", "yes"]:
-            return True
-        elif response in ["n", "no"]:
-            return False
-
-        print("Please enter 'y' or 'n'")
+colorama.init()
 
 
 def spinner(stop_event):
@@ -38,7 +27,7 @@ def spinner(stop_event):
     try:
         while not stop_event.is_set():
             sys.stdout.write(
-                f"\r{Fore.LIGHTBLACK_EX}Generating commit message {spinner_chars[i % len(spinner_chars)]}\r"
+                f"\r{Fore.LIGHTBLACK_EX}Generating commit message {spinner_chars[i % len(spinner_chars)]}{Style.RESET_ALL}\r"
             )
             sys.stdout.flush()
             time.sleep(0.7)
@@ -76,7 +65,7 @@ def format_message(msg):
 
 
 def print_message(message):
-    print(f"\n{Fore.LIGHTBLACK_EX}Commit message:\n")
+    print(f"\n{Fore.LIGHTBLACK_EX}Commit message:{Style.RESET_ALL}\n")
 
     lines = message.splitlines()
 
@@ -86,7 +75,7 @@ def print_message(message):
 
 
 def prompt_for_action(message):
-    prompt = Fore.LIGHTBLACK_EX + "Commit with this message? (y/n/e[dit]): "
+    prompt = Fore.LIGHTBLACK_EX + "Commit with this message? (y/n/e[dit]): " + Style.RESET_ALL
 
     while True:
         opt = input(prompt).lower().strip()
@@ -95,12 +84,16 @@ def prompt_for_action(message):
                 message = edit_message(message)
                 formatted_message = format_message(message)
                 print_message(formatted_message)
+                return formatted_message
             case "n" | "no":
                 return False
             case "y" | "yes":
                 return True
             case _:
-                print(f"{Fore.RED}Invalid option: {opt}")
+                if opt != "":
+                    print(f"{Fore.RED}Invalid option: {opt}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.MAGENTA}Invalid option: {opt}{Style.RESET_ALL}")
 
 
 def handle_commit(args):
@@ -111,7 +104,7 @@ def handle_commit(args):
     repo = GitUtils()
 
     if not repo.files_status or not repo.diff:
-        print(Fore.YELLOW + "Nothing to commit")
+        print(Fore.YELLOW + "Nothing to commit" + Style.RESET_ALL)
         exit(1)
 
     stop_spinner = threading.Event()
@@ -130,15 +123,22 @@ def handle_commit(args):
         formatted_message = format_message(message)
         print_message(formatted_message)
 
-        if prompt_for_action(formatted_message):
-            try:
-                GitUtils.git_commit(formatted_message)
-                print("Commit successful!")
-            except Exception as e:
-                print(f"Error committing: {e}")
-                return False
-        else:
-            print("Commit cancelled")
+        while True:
+            user_input = prompt_for_action(formatted_message)
+
+            if user_input is False:
+                print("Commit cancelled")
+                break
+            elif isinstance(user_input, str):
+                formatted_message = user_input
+            else:
+                try:
+                    GitUtils.git_commit(formatted_message)
+                    print("Commit successful!")
+                except Exception as e:
+                    print(f"Error committing: {e}")
+                    return False
+                break
     except Exception as e:
         print(f"Error: {e}")
         exit(1)
@@ -172,17 +172,11 @@ def main():
     config_parser = subparsers.add_parser("config", help="configuration commands")
     config_subparsers = config_parser.add_subparsers(dest="config_command")
 
-    config_set = config_subparsers.add_parser(
-        "set", help="set configuration option value"
-    )
-    config_set.add_argument(
-        "option", choices=["api_token", "model"], help="configuration option"
-    )
+    config_set = config_subparsers.add_parser("set", help="set configuration option value")
+    config_set.add_argument("option", choices=["api_token", "model"], help="configuration option")
     config_set.add_argument("value", type=str, help="option value")
 
-    config_get = config_subparsers.add_parser(
-        "get", help="get value of configuration option"
-    )
+    config_get = config_subparsers.add_parser("get", help="get value of configuration option")
     config_get.add_argument("option", choices=["api_token", "model"])
 
     subparsers.add_parser("help", help="Show help")
