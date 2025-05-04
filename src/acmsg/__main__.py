@@ -75,7 +75,11 @@ def print_message(message):
 
 
 def prompt_for_action(message):
-    prompt = Fore.LIGHTBLACK_EX + "Commit with this message? (y/n/e[dit]): " + Style.RESET_ALL
+    prompt = (
+        Fore.LIGHTBLACK_EX
+        + "Commit with this message? (y/n/e[dit]): "
+        + Style.RESET_ALL
+    )
 
     while True:
         opt = input(prompt).lower().strip()
@@ -93,7 +97,9 @@ def prompt_for_action(message):
                 if opt != "":
                     print(f"{Fore.RED}Invalid option: {opt}{Style.RESET_ALL}")
                 else:
-                    print(f"{Fore.MAGENTA}Invalid option: {opt}{Style.RESET_ALL}")
+                    print(
+                        f"{Fore.MAGENTA}Invalid option: {opt}{Style.RESET_ALL}"
+                    )
 
 
 def handle_commit(args):
@@ -166,17 +172,29 @@ def main():
     parser = argparse.ArgumentParser(prog="acmsg")
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
-    commit_parser = subparsers.add_parser("commit", help="generate commit message")
-    commit_parser.add_argument("--model", type=str, help="model to use for generation")
+    commit_parser = subparsers.add_parser(
+        "commit", help="generate commit message"
+    )
+    commit_parser.add_argument(
+        "--model", type=str, help="model to use for generation"
+    )
 
-    config_parser = subparsers.add_parser("config", help="configuration commands")
+    config_parser = subparsers.add_parser(
+        "config", help="configuration commands"
+    )
     config_subparsers = config_parser.add_subparsers(dest="config_command")
 
-    config_set = config_subparsers.add_parser("set", help="set configuration option value")
-    config_set.add_argument("option", choices=["api_token", "model"], help="configuration option")
+    config_set = config_subparsers.add_parser(
+        "set", help="set configuration option value"
+    )
+    config_set.add_argument(
+        "option", choices=["api_token", "model"], help="configuration option"
+    )
     config_set.add_argument("value", type=str, help="option value")
 
-    config_get = config_subparsers.add_parser("get", help="get value of configuration option")
+    config_get = config_subparsers.add_parser(
+        "get", help="get value of configuration option"
+    )
     config_get.add_argument("option", choices=["api_token", "model"])
 
     subparsers.add_parser("help", help="Show help")
