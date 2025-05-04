@@ -38,8 +38,6 @@ environment.systemPackages = [ inputs.acmsg.packages.${pkgs.system}.acmsg ];
 using a standalone profile:
 ```bash
 $ nix profile install "github:quinneden/acmsg"
-# or run the command directly, without installation
-$ nix run "github:quinneden/acmsg" -- commit
 ```
 
 ## Configuration
@@ -65,12 +63,6 @@ $ git add <files>
 
 # Review message & commit
 $ acmsg commit
-# output:
-  Commit message:
-
-    fix(docs): fix typo in `README.md`
-
-  Commit with this message? (y/n/e[dit]):
 ```
 
 ## License
