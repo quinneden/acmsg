@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import os
 import subprocess
 import sys
@@ -110,7 +111,7 @@ def handle_commit(args):
     repo = GitUtils()
 
     if not repo.files_status or not repo.diff:
-        print(Fore.YELLOW + "Nothing to commit" + Style.RESET_ALL)
+        print(Fore.YELLOW + "Nothing to commit." + Style.RESET_ALL)
         exit(1)
 
     stop_spinner = threading.Event()
@@ -142,7 +143,7 @@ def handle_commit(args):
                     GitUtils.git_commit(formatted_message)
                     print("Commit successful!")
                 except Exception as e:
-                    print(f"Error committing: {e}")
+                    print(f"{Fore.RED}Error committing:{Style.RESET_ALL} {e}")
                     return False
                 break
     except Exception as e:
@@ -152,20 +153,9 @@ def handle_commit(args):
 
 def handle_config(args):
     cfg = Config()
-
-    if hasattr(args, "token") and args.token:
-        cfg.set_parameter(parameter="api_token", value=args.token)
-        print("API token configuration saved.")
-        return True
-
-    if hasattr(args, "model") and args.model:
-        cfg.set_parameter(parameter="model", value=args.model)
-        print("Model configuration saved.")
-        return True
-
-    if hasattr(args, "_") and args._:
-        print("Error: invalid configuration parameter")
-        return False
+    cfg.set_parameter(args.parameter, args.value)
+    print(f"{args.parameter} configuration saved.")
+    return True
 
 
 def main():
@@ -175,22 +165,28 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="display the program version and exit",
+    )
+
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
     commit_parser = subparsers.add_parser(
         "commit",
-        help="Generate a commit message using AI",
+        help="generate a commit message using AI",
         description="Analyze your staged changes and generate a suitable commit message",
     )
     commit_parser.add_argument(
         "--model",
         type=str,
-        help="Specify the AI model used for generation (overrides config)",
+        help="specify the AI model used for generation (overrides config)",
     )
 
     config_parser = subparsers.add_parser(
         "config",
-        help="Manage configuration settings",
+        help="manage configuration settings",
         description="Modify or display configuration parameters",
     )
 
@@ -198,50 +194,54 @@ def main():
 
     config_set = config_subparsers.add_parser(
         "set",
-        help="Set a configuration parameter",
+        help="set a configuration parameter",
         description="Set the value of a parameter in your config file.",
     )
     config_set.add_argument(
         "parameter",
         choices=["api_token", "model"],
-        help="Parameter name",
+        help="parameter name",
     )
     config_set.add_argument("value", type=str, help="Value")
 
     config_get = config_subparsers.add_parser(
         "get",
-        help="Display a configuration parameter",
+        help="display a configuration parameter",
         description="Show the current value of a configuration parameter.",
     )
     config_get.add_argument(
         "parameter",
         choices=["api_token", "model"],
-        help="Parameter name",
+        help="parameter name",
     )
-
-    subparsers.add_parser("help", help="Show help")
 
     args = parser.parse_args()
 
-    if args.command == "help" or not args.command:
+    if args.version:
+        version = importlib.metadata.version("acmsg")
+        print(f"acmsg version {version}")
+        exit(0)
+
+    if not args.command:
         parser.print_help()
         exit(0)
 
     if args.command == "commit":
         handle_commit(args)
-    elif args.command == "config":
+
+    if args.command == "config":
+        if not args.config_subcommand:
+            config_parser.print_help()
+            exit(0)
+
         if args.config_subcommand == "set":
-            if args.parameter == "api_token":
-                args.token = args.value
-            elif args.parameter == "model":
-                args.model = args.value
             handle_config(args)
         elif args.config_subcommand == "get":
             cfg = Config()
             if args.parameter == "api_token":
-                parameter_value = cfg.get_parameter("api_token")
+                parameter_value = cfg.api_token
             elif args.parameter == "model":
-                parameter_value = cfg.get_parameter("model")
+                parameter_value = cfg.model
             print(parameter_value)
 
 

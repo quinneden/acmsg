@@ -10,7 +10,9 @@ colorama.init()
 
 
 def gen_completion(api_token, git_status, git_diff, model):
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
+    template_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "prompts"
+    )
     env = Environment(loader=FileSystemLoader(template_dir))
     system_prompt_template = env.get_template("system.md")
     user_prompt_template = env.get_template("user.md")
@@ -21,7 +23,10 @@ def gen_completion(api_token, git_status, git_diff, model):
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": "Parse the following messages as markdown."},
+            {
+                "role": "system",
+                "content": "Parse the following messages as markdown.",
+            },
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],

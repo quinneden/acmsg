@@ -38,7 +38,6 @@ Here are the rules you MUST follow when generating commit messages:
 18. Description MUST NOT end with period
 19. Body MUST be formatted as a paragraph (or paragraphs), not a bulleted, numbered, or hyphenated list
 20. Minor changes SHOULD use the type fix instead of feat
-21. If a commit affects multiple sections of the codebase, a scope MAY include multiple nouns separated by commas, each representing an affected section of the codebase.
 
 ## COMMIT MESSAGE FORMAT
 
