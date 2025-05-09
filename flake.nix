@@ -17,7 +17,6 @@
       pyproject-nix,
       systems,
       self,
-      ...
     }:
     let
       project = pyproject-nix.lib.project.loadPyproject {
@@ -40,17 +39,12 @@
       devShells = forAllSystems (
         { pkgs, python }:
         {
-          default =
-            # let
-            # deps = project.renderers.withPackages { inherit python; };
-            # pythonEnv = python.withPackages deps;
-            # in
-            pkgs.mkShell {
-              packages = [
-                pkgs.uv
-                python
-              ];
-            };
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.uv
+              python
+            ];
+          };
         }
       );
 
