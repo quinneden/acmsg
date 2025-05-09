@@ -32,11 +32,20 @@ jobs:
       - name: uv build
         run: uv build
 
+      - name: Generate Changelog
+        run: |
+          uv run \
+            cz changelog \
+              --file-name ${{ github.ref_name}}-CHANGELOG.md \
+              ${{ github.ref_name }}
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: package-dist
-          path: dist/
+          name: changelog-and-dist
+          path: |
+            ${{ github.ref_name }}-CHANGELOG.md
+            dist/
 
       - name: uv publish
         run: uv publish
@@ -55,15 +64,10 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          name: package-dist
-          path: dist/
-
-      - name: Generate Changelog
-        run: |
-          uv run \
-            cz changelog \
-              --file-name ${{ github.ref_name}}-CHANGELOG.md \
-              ${{ github.ref_name }}
+          name: changelog-and-dist
+          path: |
+            ${{ github.ref_name }}-CHANGELOG.md
+            dist/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2.2.2
