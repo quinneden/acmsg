@@ -27,7 +27,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: uv sync
-        run: uv sync --all-extras --dev --locked
+        run: uv sync --all-extras --dev
 
       - name: uv build
         run: uv build
