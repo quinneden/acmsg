@@ -41,6 +41,7 @@
         {
           default = pkgs.mkShell {
             packages = [
+              pkgs.commitizen
               pkgs.uv
               python
             ];
