@@ -22,7 +22,7 @@ pipx install acmsg
 ```
 
 ### with nix:
-using flakes, i.e. nixos/nix-darwin/home-manager:
+using flakes (i.e. nixos/nix-darwin/home-manager):
 ```bash
 # Add `acmsg` to your flake inputs
 inputs.acmsg.url = "github:quinneden/acmsg";
@@ -42,27 +42,29 @@ $ nix profile install "github:quinneden/acmsg"
 
 ## Configuration
 
-You can also configure default settings directly in `~/.config/acmsg/config.yaml`:
+The configuration file is located at `~/.config/acmsg/config.yaml`.
 
-```yaml
-api_token: <OPENROUTER_API_TOKEN>
-model: thudm/glm-4-32b:free # Default model
+To setup acmsg, you'll need to configure your OpenRouter API token by running
+the following command:
+```bash
+$ acmsg config set api_token <your_api_token>
 ```
 
 ## Usage
 
-```bash
-# Set api_token in config
-$ acmsg config set api_token <token_value>
+```
+usage: acmsg [-h] [--version] {commit,config} ...
 
-# Optionally, configure a different default model
-$ acmsg config set model <model>
+Automated commit message generator
 
-# Stage your changes
-$ git add <files>
+positional arguments:
+  {commit,config}  Commands
+    commit         generate a commit message
+    config         manage configuration settings
 
-# Review message & commit
-$ acmsg commit
+options:
+  -h, --help       show this help message and exit
+  --version        display the program version and exit
 ```
 
 ## License

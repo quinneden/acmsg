@@ -106,7 +106,7 @@ def prompt_for_action(message):
 def handle_commit(args):
     cfg = Config()
     api_token = cfg.api_token
-    model = args.model if args.model else cfg.model
+    model = args.model or cfg.model
 
     repo = GitUtils()
 
@@ -175,8 +175,8 @@ def main():
 
     commit_parser = subparsers.add_parser(
         "commit",
-        help="generate a commit message using AI",
-        description="Analyze your staged changes and generate a suitable commit message",
+        help="generate a commit message",
+        description="Analyzes your staged changes and generate a suitable commit message using the configured AI model",
     )
     commit_parser.add_argument(
         "--model",

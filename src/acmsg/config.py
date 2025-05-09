@@ -1,30 +1,30 @@
 import os
 import yaml
 
+from .templates import config_template
+
 
 class Config:
     def __init__(self):
-        self.config_dir = self.create_or_return_config_dir()
-        self.config_file = self.create_or_return_config_yaml()
-        self.model = self.get_parameter("model")
+        self.default_model = "qwen/qwen3-30b-a3b:free"
+        self.config_file = self.create_or_path_to_config()
+        self.model = self.get_parameter("model") or self.default_model
         self.api_token = self.get_parameter("api_token")
 
-    def create_or_return_config_dir(self):
-        home_dir = os.getenv("HOME") or os.path.expanduser("~")
-        config_dir = f"{home_dir}/.config/acmsg"
-        os.makedirs(config_dir, exist_ok=True)
-        return config_dir
+    def create_or_path_to_config(self, create=False):
+        user_config_home = os.getenv(
+            "XDG_CONFIG_HOME", os.path.expanduser("~/.config")
+        )
+        acmsg_config_dir = f"{user_config_home}/acmsg"
+        acmsg_config_file = f"{acmsg_config_dir}/config.yaml"
 
-    def create_or_return_config_yaml(self):
-        config_file = f"{self.config_dir}/config.yaml"
-        data = {"api_token": "", "model": "thudm/glm-4-32b:free"}
+        if not os.path.exists(acmsg_config_file):
+            os.makedirs(acmsg_config_dir, exist_ok=True)
+            content = config_template.render()
+            with open(acmsg_config_file, "w") as f:
+                f.write(content)
 
-        if not os.path.exists(config_file):
-            os.makedirs(self.config_dir, exist_ok=True)
-            with open(config_file, "w") as f:
-                yaml.dump(data, f)
-
-        return config_file
+        return acmsg_config_file
 
     def set_parameter(self, parameter, value):
         config_file = self.config_file
