@@ -99,7 +99,7 @@ def prompt_for_action(message):
                     print(f"{Fore.RED}Invalid option: {opt}{Style.RESET_ALL}")
                 else:
                     print(
-                        f"{Fore.MAGENTA}Please specify one of; [y]es, [n]o, [e]dit.{Style.RESET_ALL}"
+                        f"{Fore.MAGENTA}Please specify one of: [y]es, [n]o, [e]dit.{Style.RESET_ALL}"
                     )
 
 
