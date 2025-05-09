@@ -1,6 +1,6 @@
 [project]
 name = "acmsg"
-version = "0.2.2"
+version = "0.2.3"
 description = "Automatic git commit message generator using AI models & the OpenRouter API."
 requires-python = ">=3.12"
 keywords = [
