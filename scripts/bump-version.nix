@@ -1,15 +1,22 @@
 {
   commitizen,
+  git,
   version,
   writeShellApplication,
   ...
 }:
 writeShellApplication {
-  name = "create-release-acmsg-v${version}";
-  runtimeInputs = [ commitizen ];
+  name = "acmsg-bump-version";
+  runtimeInputs = [
+    commitizen
+    git
+  ];
+
   text = ''
     baseDir=$(git rev-parse --show-toplevel)
     branch=$(git symbolic-ref --short HEAD)
+    currentVersion=${version}
+    latestReleaseTag=$(git tag --sort=-creatordate | grep -E "^v[0-9]+.[0-9]+.[0-9]+$" | head -n 1)
     uncommittedChanges=$(git diff --compact-summary)
     unpushedCommits=$(git log --format=oneline origin/main..main)
 
@@ -25,19 +32,14 @@ writeShellApplication {
     elif [[ -n "$unpushedCommits" ]]; then
       echo -e "\nThere are unpushed changes, exiting:\n$unpushedCommits" >&2
       exit 1
-    fi
-
-    currentVersion=${version}
-    latestReleaseTag=$(git tag --sort=-creatordate | grep -E "^v[0-9]+.[0-9]+.[0-9]+$" | head -n 1)
-
-    if [[ "v$currentVersion" != "$latestReleaseTag" ]]; then
+    elif [[ "v$currentVersion" != "$latestReleaseTag" ]]; then
       echo "error: the version in pyproject.toml doesn't match the latest release tag: $currentVersion != $latestReleaseTag" >&2
       exit 1
     fi
 
     flags=(
-      --changelog
-      --major-version-zero
+      "--changelog"
+      "--major-version-zero"
     )
 
     while [[ $# -gt 0 ]]; do
@@ -54,5 +56,17 @@ writeShellApplication {
     done
 
     cz bump "''${flags[@]}" --
+
+    newVersion=$(cz version --project)
+
+    read -rN1 -p "Push v$newVersion to remote? (y/N): " input
+    if [[ $input != [yY] ]]; then
+      echo "To push the new tag to the remote, run:"
+      echo
+      echo "    git push origin main v$newVersion"
+      exit 0
+    else
+      git push origin main "v$newVersion"
+    fi
   '';
 }
