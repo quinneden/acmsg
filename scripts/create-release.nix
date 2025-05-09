@@ -31,7 +31,7 @@ writeShellApplication {
     latestReleaseTag=$(git tag --sort=-creatordate | grep -E "^v[0-9]+.[0-9]+.[0-9]+$" | head -n 1)
 
     if [[ "v$currentVersion" != $latestReleaseTag ]]; then
-      echo "error: the version in pyproject.toml doesn't match the latest release tag: $version != $latestReleaseTag" >&2
+      echo "error: the version in pyproject.toml doesn't match the latest release tag: $currentVersion != $latestReleaseTag" >&2
       exit 1
     fi
 
