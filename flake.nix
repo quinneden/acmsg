@@ -37,20 +37,18 @@
         );
     in
     {
-      inherit project;
       devShells = forAllSystems (
         { pkgs, python }:
         {
           default =
-            let
-              deps = project.renderers.withPackages { inherit python; };
-              pythonEnv = python.withPackages deps;
-            in
+            # let
+            # deps = project.renderers.withPackages { inherit python; };
+            # pythonEnv = python.withPackages deps;
+            # in
             pkgs.mkShell {
               packages = [
                 pkgs.uv
                 python
-                pythonEnv
               ];
             };
         }
