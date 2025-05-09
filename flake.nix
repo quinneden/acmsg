@@ -31,7 +31,7 @@
           system:
           f rec {
             pkgs = import nixpkgs { inherit system; };
-            python = pkgs.python313;
+            python = pkgs.python312;
           }
         );
     in
