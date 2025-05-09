@@ -39,13 +39,11 @@ jobs:
               --file-name ${{ github.ref_name}}-CHANGELOG.md \
               ${{ github.ref_name }}
 
-      - name: Upload Artifacts
+      - name: Upload Package Distribution
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: changelog-and-dist
-          path: |
-            ${{ github.ref_name }}-CHANGELOG.md
-            dist/
+          name: upload-package-dist
+          path: dist/
 
       - name: uv publish
         run: uv publish
@@ -61,13 +59,11 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download Artifacts
+      - name: Download Package Distribution
         uses: actions/download-artifact@v4.3.0
         with:
-          name: changelog-and-dist
-          path: |
-            ${{ github.ref_name }}-CHANGELOG.md
-            dist/
+          name: upload-package-dist
+          path: dist/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2.2.2

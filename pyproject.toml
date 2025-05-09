@@ -43,4 +43,7 @@ version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
 [dependency-groups]
-dev = ["ipython>=9.2.0"]
+dev = [
+    "commitizen>=4.6.3",
+    "ipython>=9.2.0",
+]
