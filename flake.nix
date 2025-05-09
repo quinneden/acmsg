@@ -59,7 +59,7 @@
             in
             python.pkgs.buildPythonPackage attrs;
 
-          create-release = pkgs.callPackage ./scripts/create-release { inherit version; };
+          create-release = pkgs.callPackage ./scripts/create-release.nix { inherit version; };
         }
       );
 
