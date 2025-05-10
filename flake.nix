@@ -36,11 +36,23 @@
         );
     in
     {
+      apps = forAllSystems (
+        { pkgs, ... }:
+        {
+          default = self.apps.${pkgs.system}.bump-version;
+          bump-version = {
+            type = "app";
+            program = pkgs.lib.getExe (pkgs.callPackage ./scripts/bump-version.nix { inherit version; });
+          };
+        }
+      );
+
       devShells = forAllSystems (
         { pkgs, python }:
         {
           default = pkgs.mkShell {
             packages = [
+              pkgs.commitizen
               pkgs.uv
               python
             ];
@@ -50,15 +62,13 @@
 
       packages = forAllSystems (
         { pkgs, python, ... }:
-        rec {
-          default = acmsg;
+        {
+          default = self.packages.${pkgs.system}.acmsg;
           acmsg =
             let
               attrs = project.renderers.buildPythonPackage { inherit python; };
             in
             python.pkgs.buildPythonPackage attrs;
-
-          bump-version = pkgs.callPackage ./scripts/bump-version.nix { inherit version; };
         }
       );
 

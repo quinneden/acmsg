@@ -3,21 +3,21 @@ name = "acmsg"
 version = "0.2.4"
 description = "Automatic git commit message generator using AI models & the OpenRouter API."
 requires-python = ">=3.12"
-keywords = [
-  "AI",
-  "artificial intelligence",
-  "commit message",
-  "commit",
-  "git",
-  "OpenRouter",
-]
 authors = [{ email = "quinn@qeden.dev" }, { name = "Quinn Edenfield" }]
 maintainers = [{ email = "quinn@qeden.dev" }, { name = "Quinn Edenfield" }]
+keywords = [
+  "AI",
+  "OpenRouter",
+  "artificial intelligence",
+  "commit",
+  "commit message",
+  "git",
+]
 dependencies = [
-  "requests (>=2.32.3,<3.0.0)",
-  "pyyaml (>=6.0.2,<7.0.0)",
   "colorama (>=0.4.6,<0.5.0)",
   "jinja2>=3.1.6",
+  "pyyaml (>=6.0.2,<7.0.0)",
+  "requests (>=2.32.3,<3.0.0)",
   "types-colorama>=0.4.15.20240311",
   "types-pyyaml>=6.0.12.20250402",
   "types-requests>=2.32.0.20250328",
@@ -29,18 +29,18 @@ repository = "https://github.com/quinneden/acmsg"
 [project.scripts]
 acmsg = "acmsg.__main__:main"
 
+[dependency-groups]
+dev = [
+  "commitizen>=4.6.3",
+  "ipython>=9.2.0",
+  "mypy>=1.15.0",
+  "pytest-cov>=4.1.0",
+  "pytest>=7.4.0",
+]
+
 [build-system]
 requires = ["setuptools >= 78.1.0"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-package-dir = { "" = "src" }
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["acmsg*"]
-namespaces = false
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -51,17 +51,16 @@ version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
 
-
-[dependency-groups]
-dev = [
-  "commitizen>=4.6.3",
-  "ipython>=9.2.0",
-  "mypy>=1.15.0",
-  "pytest>=7.4.0",
-  "pytest-cov>=4.1.0",
-]
-
 [tool.pytest.ini_options]
-testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["acmsg*"]
+namespaces = false
