@@ -3,6 +3,9 @@
 A cli tool written in Python that generates git commit messages using AI models
 through the OpenRouter API.
 
+[![Create Release and Publish to PyPI](https://github.com/quinneden/acmsg/actions/workflows/publish-and-release.yaml/badge.svg)](https://github.com/quinneden/acmsg/actions/workflows/publish-and-release.yaml)
+[![Run Tests](https://github.com/quinneden/acmsg/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/quinneden/acmsg/actions/workflows/test.yaml)
+
 ## Features
 
 - Analyzes staged changes in your git repository
