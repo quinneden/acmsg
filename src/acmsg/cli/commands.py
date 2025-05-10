@@ -198,7 +198,14 @@ def handle_config(args: Any) -> None:
             if parameter_value:
                 print(parameter_value)
             else:
-                print(f"{Fore.YELLOW}{args.parameter} is not set.{Style.RESET_ALL}")
+                if args.parameter == "model":
+                    print(
+                        f"{Fore.YELLOW}{args.parameter} configuration is specified, using default: {cfg._default_model}.{Style.RESET_ALL}"
+                    )
+                elif args.parameter == "api_token":
+                    print(
+                        f"{Fore.YELLOW}{args.parameter} must be configured before running acmsg.{Style.RESET_ALL}"
+                    )
     except ConfigError as e:
         print(f"{Fore.RED}Configuration error: {e}{Style.RESET_ALL}")
         sys.exit(1)

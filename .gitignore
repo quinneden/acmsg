@@ -11,4 +11,3 @@ coverage.xml
 .ruff_cache/
 *.log
 .DS_Store
-justfile

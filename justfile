@@ -2,26 +2,26 @@ default:
   help
 
 help:
-    @just --list
+  @just --list
 
 build:
-    @echo "Running uv build..."
-    uv build
+  @echo "Running uv build..."
+  uv build
 
 clean:
-    @echo "Cleaning cache dirs..."
-    uv clean
-    fd -uE .venv "__pycache__|.*_cache|dist|egg-info" | xargs rm -rf
+  @echo "Cleaning cache dirs..."
+  fd -uE ".venv" "__pycache__|.*_cache|egg-info" -x rm -rf
 
-test: clean
-    @echo "Running tests..."
-    pytest
-    mypy src/acmsg
+test:
+  @echo "Running tests..."
+  uv run pytest --cov=acmsg --cov-report=xml
+  uv run mypy src/acmsg
+  just clean
 
 sync:
-    @echo "Running uv sync..."
-    uv sync --all-packages --dev
+  @echo "Running uv sync..."
+  uv sync --all-packages --dev
 
 bump-version:
-    @echo "Running bump-version..."
-    nix run .#bump-version
+  @echo "Running bump-version..."
+  nix run .#bump-version "$@"
