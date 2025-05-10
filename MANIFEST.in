@@ -1,2 +1,4 @@
-include src/acmsg/assets/*.md
-include src/acmsg/assets/*.yaml
+include src/acmsg/templates/assets/*.md
+include src/acmsg/templates/assets/*.yaml
+include src/acmsg/*.py
+include src/acmsg/*/*.py
