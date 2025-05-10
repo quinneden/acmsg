@@ -47,8 +47,9 @@ $ nix profile install "github:quinneden/acmsg"
 
 The configuration file is located at `~/.config/acmsg/config.yaml`.
 
-To setup acmsg, you'll need to configure your OpenRouter API token by running
-the following command:
+On first run, acmsg will prompt you to configure your OpenRouter API token.
+
+You can also run the following command:
 ```bash
 $ acmsg config set api_token <your_api_token>
 ```
