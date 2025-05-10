@@ -132,9 +132,9 @@ def handle_commit(args: Any) -> None:
             print(
                 f"{Fore.YELLOW}API token not yet configured. Please enter it now.{Style.RESET_ALL}"
             )
-            token_value = input("OpenRouter API token: ")
+            api_token = input("OpenRouter API token: ")
             try:
-                cfg.set_parameter("api_token", token_value)
+                cfg.set_parameter("api_token", api_token)
             except Exception as e:
                 print(
                     f"{Fore.RED}Error saving API token to configuration file.{e}{Style.RESET_ALL}"
