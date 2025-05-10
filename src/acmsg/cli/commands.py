@@ -129,9 +129,17 @@ def handle_commit(args: Any) -> None:
         model = args.model or cfg.model
 
         if not api_token:
-            print(f"{Fore.RED}Error: API token not configured.{Style.RESET_ALL}")
-            print("Run 'acmsg config set api_token <your_token>' to configure.")
-            sys.exit(1)
+            print(
+                f"{Fore.YELLOW}API token not yet configured. Please enter it now.{Style.RESET_ALL}"
+            )
+            token_value = input("OpenRouter API token: ")
+            try:
+                cfg.set_parameter("api_token", token_value)
+            except Exception as e:
+                print(
+                    f"{Fore.RED}Error saving API token to configuration file.{e}{Style.RESET_ALL}"
+                )
+                sys.exit(1)
 
         repo = GitUtils()
 
