@@ -1,8 +1,16 @@
 ## v0.2.4 (2025-05-09)
 
+### Feat
+
+- **feat**: Add testing framework and refactor package structure
+
 ### Fix
 
 - **ci**: again
+
+### Refactor
+
+- **Refactor**: Codebase restructuring, added unit tests, CI workflow
 
 ## v0.2.3 (2025-05-09)
 

@@ -4,7 +4,7 @@ requires-python = ">=3.12"
 
 [[package]]
 name = "acmsg"
-version = "0.2.3"
+version = "0.2.4"
 source = { editable = "." }
 dependencies = [
     { name = "colorama" },
