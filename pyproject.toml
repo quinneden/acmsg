@@ -18,6 +18,9 @@ dependencies = [
   "pyyaml (>=6.0.2,<7.0.0)",
   "colorama (>=0.4.6,<0.5.0)",
   "jinja2>=3.1.6",
+  "types-colorama>=0.4.15.20240311",
+  "types-pyyaml>=6.0.12.20250402",
+  "types-requests>=2.32.0.20250328",
 ]
 
 [project.urls]
@@ -32,18 +35,33 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-packages = ["acmsg"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["acmsg*"]
+namespaces = false
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
+ignored_tag_formats = ["latest"]
 version_scheme = "pep440"
 version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
+
+
 [dependency-groups]
 dev = [
-    "commitizen>=4.6.3",
-    "ipython>=9.2.0",
+  "commitizen>=4.6.3",
+  "ipython>=9.2.0",
+  "mypy>=1.15.0",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["src"]

@@ -3,3 +3,12 @@
 **/__pycache__
 **/*.egg-info
 dist/
+build/
+.pytest_cache/
+.coverage
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+*.log
+.DS_Store
+justfile
