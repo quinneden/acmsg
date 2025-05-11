@@ -1,8 +1,8 @@
-api_token: # <your_openrouter_api_token>
+api_token: # Required
+
 # Optionally, you can specify a different model to use
 # for commit message generation with:
-#
-#   model: <valid_model_id_from_openrouter>
-#
-# If the `model:` parameter is absent or left blank, then
-# the default (`qwen/qwen3-30b-a3b:free`) will be used.
+# model: qwen/qwen3-30b-a3b:free # default
+
+# Optionally, set the temperature:
+# temperature: 0.8 # default

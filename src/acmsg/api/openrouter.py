@@ -81,7 +81,12 @@ class OpenRouterClient:
                 return self._models_info_cache[model_id]
 
             # Make API request to fetch model information
-            headers = {"Authorization": f"Bearer {self._api_token}"}
+            headers = {
+                "Authorization": f"Bearer {self._api_token}",
+                "HTTP-Referer": "https://github.com/quinneden/acmsg",
+                "X-Title": "acmsg",
+                "Content-Type": "application/json",
+            }
             response = requests.get(
                 url="https://openrouter.ai/api/v1/models", headers=headers
             )
@@ -250,7 +255,12 @@ class OpenRouterClient:
         return trimmed_system, trimmed_user, True
 
     def generate_completion(
-        self, model: str, system_prompt: str, user_prompt: str, stream: bool = False
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        stream: bool = False,
     ) -> str:
         """Generate a completion using the OpenRouter API.
 
@@ -258,6 +268,7 @@ class OpenRouterClient:
             model: Model ID to use for generation
             system_prompt: System prompt for the model
             user_prompt: User prompt for the model
+            temperature: Temperature for the model
             stream: Whether to stream the response
 
         Returns:
@@ -299,6 +310,7 @@ class OpenRouterClient:
                 {"role": "user", "content": trimmed_user_prompt},
             ],
             "stream": stream,
+            "temperature": temperature,
         }
 
         # Add middle-out transform in case request exceeds context limit

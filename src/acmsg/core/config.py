@@ -5,7 +5,7 @@ import yaml
 from pathlib import Path
 from typing import Optional, Any
 
-from ..constants import DEFAULT_MODEL, CONFIG_FILENAME, CONFIG_DIR
+from ..constants import DEFAULT_MODEL, DEFAULT_TEMPERATURE, CONFIG_FILENAME, CONFIG_DIR
 from ..exceptions import ConfigError
 from ..templates import renderer
 
@@ -16,6 +16,7 @@ class Config:
     def __init__(self):
         """Initialize the Config instance with configuration values."""
         self._default_model = DEFAULT_MODEL
+        self._default_temperature = DEFAULT_TEMPERATURE
         self._config_file = self._init_config_file()
         self._load_config()
 
@@ -44,9 +45,36 @@ class Config:
                 data = yaml.safe_load(f) or {}
 
             self._model = data.get("model") or self._default_model
+            temp_value = data.get("temperature") or self._default_temperature
+            self._temperature = (
+                self._validate_temperature(temp_value) or self._default_temperature
+            )
+
             self._api_token = data.get("api_token")
         except Exception as e:
             raise ConfigError(f"Failed to load configuration: {e}")
+
+    def _validate_temperature(self, temperature: Any) -> float:
+        """Validate and convert temperature value.
+
+        Args:
+            temperature: Temperature value to validate
+
+        Returns:
+            Validated temperature as float
+
+        Raises:
+            ConfigError: If temperature is invalid
+        """
+        try:
+            temp = float(temperature)
+            if not 0.0 <= temp <= 2.0:
+                raise ConfigError(
+                    f"Temperature must be between 0.0 and 2.0, got {temp}"
+                )
+            return temp
+        except ValueError:
+            raise ConfigError(f"Temperature must be a number, got {temperature}")
 
     @property
     def model(self) -> str:
@@ -56,6 +84,15 @@ class Config:
             Model ID string
         """
         return self._model
+
+    @property
+    def temperature(self) -> float:
+        """Get the configured temperature.
+
+        Returns:
+            Temperature value
+        """
+        return self._temperature
 
     @property
     def api_token(self) -> Optional[str]:
@@ -96,6 +133,8 @@ class Config:
 
             if parameter == "model":
                 self._model = value
+            elif parameter == "temperature":
+                self._temperature = self._validate_temperature(value)
             elif parameter == "api_token":
                 self._api_token = value
         except Exception as e:

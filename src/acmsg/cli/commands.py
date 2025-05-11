@@ -26,9 +26,11 @@ def spinner(stop_event: threading.Event) -> None:
         stop_event: Event to signal when to stop the spinner
     """
     spinner_chars = [".  ", ".. ", "...", "   "]
+    hide_cursor = "\033[?25l"
+    show_cursor = "\033[?25h"
     i = 0
 
-    sys.stdout.write("\033[?25l")
+    sys.stdout.write(hide_cursor)
     sys.stdout.flush()
 
     try:
@@ -40,7 +42,7 @@ def spinner(stop_event: threading.Event) -> None:
             time.sleep(0.7)
             i += 1
     finally:
-        sys.stdout.write("\033[?25h")
+        sys.stdout.write(show_cursor)
         sys.stdout.flush()
 
 
@@ -117,50 +119,67 @@ def prompt_for_action(message: str) -> Union[bool, str]:
                     )
 
 
-def handle_commit(args: Any) -> None:
-    """Handle the commit command.
+def ensure_api_token_configured(config):
+    """Ensure API token is configured and return it."""
+    api_token = config.api_token
+    if not api_token:
+        print(
+            f"{Fore.YELLOW}API token not yet configured. Please enter it now.{Style.RESET_ALL}"
+        )
+        api_token = input("OpenRouter API token: ")
+        try:
+            config.set_parameter("api_token", api_token)
+        except Exception as e:
+            print(
+                f"{Fore.RED}Error saving API token to configuration file.{e}{Style.RESET_ALL}"
+            )
+            sys.exit(1)
+    return api_token
 
-    Args:
-        args: Command line arguments
-    """
+
+def generate_commit_message(repo, api_token, model, temperature):
+    """Generate a commit message and return it formatted."""
+    stop_spinner = threading.Event()
+    spinner_thread = threading.Thread(target=spinner, args=(stop_spinner,))
+    spinner_thread.start()
+
+    try:
+        generator = CommitMessageGenerator(api_token, model, temperature)
+        message = generator.generate(repo.files_status, repo.diff)
+    finally:
+        stop_spinner.set()
+        spinner_thread.join()
+        sys.stdout.write("\r" + " " * 80 + "\r")
+        sys.stdout.flush()
+
+    return format_message(message)
+
+
+def commit_with_message(formatted_message):
+    """Execute the git commit and handle results."""
+    try:
+        GitUtils.git_commit(formatted_message)
+        print(f"{Fore.GREEN}Commit successful!{Style.RESET_ALL}")
+        return True
+    except GitError as e:
+        print(f"{Fore.RED}Error committing:{Style.RESET_ALL} {e}")
+        return False
+
+
+def handle_commit(args: Any) -> None:
+    """Handle the commit command."""
     try:
         cfg = Config()
-        api_token = cfg.api_token
+        api_token = ensure_api_token_configured(cfg)
         model = args.model or cfg.model
-
-        if not api_token:
-            print(
-                f"{Fore.YELLOW}API token not yet configured. Please enter it now.{Style.RESET_ALL}"
-            )
-            api_token = input("OpenRouter API token: ")
-            try:
-                cfg.set_parameter("api_token", api_token)
-            except Exception as e:
-                print(
-                    f"{Fore.RED}Error saving API token to configuration file.{e}{Style.RESET_ALL}"
-                )
-                sys.exit(1)
+        temperature = args.temperature or cfg.temperature
 
         repo = GitUtils()
-
         if not repo.files_status or not repo.diff:
             print(Fore.YELLOW + "Nothing to commit." + Style.RESET_ALL)
             sys.exit(1)
 
-        stop_spinner = threading.Event()
-        spinner_thread = threading.Thread(target=spinner, args=(stop_spinner,))
-        spinner_thread.start()
-
-        try:
-            generator = CommitMessageGenerator(api_token, model)
-            message = generator.generate(repo.files_status, repo.diff)
-        finally:
-            stop_spinner.set()
-            spinner_thread.join()
-            sys.stdout.write("\r" + " " * 80 + "\r")
-            sys.stdout.flush()
-
-        formatted_message = format_message(message)
+        formatted_message = generate_commit_message(repo, api_token, model, temperature)
         print_message(formatted_message)
 
         while True:
@@ -172,12 +191,9 @@ def handle_commit(args: Any) -> None:
             elif isinstance(user_input, str):
                 formatted_message = user_input
             else:
-                try:
-                    GitUtils.git_commit(formatted_message)
-                    print(f"{Fore.GREEN}Commit successful!{Style.RESET_ALL}")
-                except GitError as e:
-                    print(f"{Fore.RED}Error committing:{Style.RESET_ALL} {e}")
+                commit_with_message(formatted_message)
                 break
+
     except (AcmsgError, GitError, ApiError) as e:
         print(f"{Fore.RED}Error: {e}{Style.RESET_ALL}")
         sys.exit(1)
@@ -207,13 +223,11 @@ def handle_config(args: Any) -> None:
                 print(parameter_value)
             else:
                 if args.parameter == "model":
-                    print(
-                        f"{Fore.YELLOW}{args.parameter} configuration is specified, using default: {cfg._default_model}.{Style.RESET_ALL}"
-                    )
+                    print(cfg._default_model)
+                elif args.parameter == "temperature":
+                    print(cfg._default_temperature)
                 elif args.parameter == "api_token":
-                    print(
-                        f"{Fore.YELLOW}{args.parameter} must be configured before running acmsg.{Style.RESET_ALL}"
-                    )
+                    print(f"{Fore.YELLOW}API token not set.{Style.RESET_ALL}")
     except ConfigError as e:
         print(f"{Fore.RED}Configuration error: {e}{Style.RESET_ALL}")
         sys.exit(1)

@@ -14,7 +14,7 @@ clean:
 
 test:
   @echo "Running tests..."
-  uv run pytest --cov=acmsg --cov-report=xml
+  uv run pytest -v --cov=acmsg --cov-report=xml
   uv run mypy src/acmsg
   just clean
 

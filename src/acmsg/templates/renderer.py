@@ -48,5 +48,4 @@ class TemplateRenderer:
         return self._config_template.render()
 
 
-# Create a singleton instance
 renderer = TemplateRenderer()
