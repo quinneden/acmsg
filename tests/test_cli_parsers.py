@@ -65,6 +65,7 @@ class TestCliParsers:
                                 assert set_action.choices == [
                                     "api_token",
                                     "model",
+                                    "temperature",
                                 ]
                             elif set_action.dest == "value":
                                 has_value_arg = True
@@ -84,6 +85,7 @@ class TestCliParsers:
                                 assert get_action.choices == [
                                     "api_token",
                                     "model",
+                                    "temperature",
                                 ]
 
                         assert has_parameter_arg

@@ -10,14 +10,15 @@ class TestCommitMessageGenerator:
 
     def test_init(self):
         """Test initialization of the CommitMessageGenerator."""
-        generator = CommitMessageGenerator("test_token", "test_model")
+        generator = CommitMessageGenerator("test_token", "test_model", 0.7)
         assert generator._model == "test_model"
+        assert generator._temperature == 0.7
         assert hasattr(generator, "_api_client")
 
     def test_init_no_token(self):
         """Test initialization with no API token."""
         with pytest.raises(AcmsgError) as exc_info:
-            CommitMessageGenerator("", "test_model")
+            CommitMessageGenerator("", "test_model", 0.7)
 
         assert "API token is required" in str(exc_info.value)
 
@@ -45,7 +46,7 @@ class TestCommitMessageGenerator:
                     mock_render_user.return_value = "User prompt content"
 
                     # Create generator and generate message
-                    generator = CommitMessageGenerator("test_token", "test_model")
+                    generator = CommitMessageGenerator("test_token", "test_model", 0.7)
                     result = generator.generate("M file.py", "diff content")
 
                     # Verify the result and method calls
@@ -70,7 +71,7 @@ class TestCommitMessageGenerator:
             mock_client.generate_completion.side_effect = AcmsgError("API error")
 
             # Create generator and attempt to generate message
-            generator = CommitMessageGenerator("test_token", "test_model")
+            generator = CommitMessageGenerator("test_token", "test_model", 0.7)
 
             # Check that the exception is raised
             with pytest.raises(AcmsgError):

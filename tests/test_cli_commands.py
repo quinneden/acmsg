@@ -1,16 +1,19 @@
 from unittest.mock import patch, MagicMock
 from io import StringIO
 
-from acmsg.cli.commands import (
+from acmsg.cli.commands import (  # type: ignore
     spinner,
     edit_message,
     print_message,
-    format_message,
     prompt_for_action,
+    ensure_api_token_configured,
+    generate_commit_message,
+    commit_with_message,
     handle_commit,
     handle_config,
 )
-from acmsg.exceptions import ConfigError
+from acmsg.core.generation import format_message  # type: ignore
+from acmsg.exceptions import ConfigError, GitError  # type: ignore
 
 
 class TestCliCommands:
@@ -123,23 +126,102 @@ class TestCliCommands:
         mock_edit.assert_called_once_with("Original message")
         mock_format.assert_called_once_with("Edited message")
         mock_print.assert_called_once()
-
-    @patch("acmsg.cli.commands.Config")
-    @patch("acmsg.cli.commands.GitUtils")
+        
+    @patch("builtins.input")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_ensure_api_token_configured_token_exists(self, mock_stdout, mock_input):
+        """Test ensuring API token when it already exists."""
+        mock_config = MagicMock()
+        mock_config.api_token = "existing_token"
+        
+        result = ensure_api_token_configured(mock_config)
+        
+        assert result == "existing_token"
+        mock_input.assert_not_called()
+        
+    @patch("builtins.input")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_ensure_api_token_configured_no_token(self, mock_stdout, mock_input):
+        """Test ensuring API token when it needs to be input."""
+        mock_config = MagicMock()
+        mock_config.api_token = None
+        mock_input.return_value = "new_token"
+        
+        result = ensure_api_token_configured(mock_config)
+        
+        assert result == "new_token"
+        mock_input.assert_called_once()
+        mock_config.set_parameter.assert_called_once_with("api_token", "new_token")
+        
     @patch("acmsg.cli.commands.CommitMessageGenerator")
     @patch("threading.Thread")
     @patch("acmsg.cli.commands.format_message")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_generate_commit_message(self, mock_stdout, mock_format, mock_thread, mock_generator):
+        """Test generating a commit message."""
+        mock_repo = MagicMock()
+        mock_repo.files_status = "M file.py"
+        mock_repo.diff = "diff content"
+        
+        mock_generator_instance = MagicMock()
+        mock_generator_instance.generate.return_value = "feat: add new feature"
+        mock_generator.return_value = mock_generator_instance
+        
+        mock_format.return_value = "formatted message"
+        
+        # Mock thread behavior
+        mock_thread_instance = MagicMock()
+        mock_thread.return_value = mock_thread_instance
+        
+        result = generate_commit_message(mock_repo, "test_token", "test_model", 0.7)
+        
+        assert result == "formatted message"
+        mock_generator.assert_called_once_with("test_token", "test_model", 0.7)
+        mock_generator_instance.generate.assert_called_once_with("M file.py", "diff content")
+        mock_format.assert_called_once_with("feat: add new feature")
+        mock_thread_instance.start.assert_called_once()
+        mock_thread_instance.join.assert_called_once()
+        
+    @patch("acmsg.cli.commands.GitUtils")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_commit_with_message_success(self, mock_stdout, mock_git_utils):
+        """Test successful commit with message."""
+        mock_git_utils.git_commit.return_value = None
+        
+        result = commit_with_message("test commit message")
+        
+        assert result is True
+        mock_git_utils.git_commit.assert_called_once_with("test commit message")
+        assert "Commit successful" in mock_stdout.getvalue()
+        
+    @patch("acmsg.cli.commands.GitUtils")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_commit_with_message_error(self, mock_stdout, mock_git_utils):
+        """Test commit with message that encounters an error."""
+        mock_git_utils.git_commit.side_effect = GitError("Commit failed")
+        
+        result = commit_with_message("test commit message")
+        
+        assert result is False
+        mock_git_utils.git_commit.assert_called_once_with("test commit message")
+        assert "Error committing" in mock_stdout.getvalue()
+
+    @patch("acmsg.cli.commands.Config")
+    @patch("acmsg.cli.commands.GitUtils")
+    @patch("acmsg.cli.commands.ensure_api_token_configured")
+    @patch("acmsg.cli.commands.generate_commit_message")
     @patch("acmsg.cli.commands.print_message")
     @patch("acmsg.cli.commands.prompt_for_action")
+    @patch("acmsg.cli.commands.commit_with_message")
     @patch("sys.stdout", new_callable=StringIO)
     def test_handle_commit_success(
         self,
         mock_stdout,
+        mock_commit_with_message,
         mock_prompt,
         mock_print,
-        mock_format,
-        mock_thread,
-        mock_generator,
+        mock_generate_message,
+        mock_ensure_token,
         mock_git,
         mock_config,
     ):
@@ -147,38 +229,91 @@ class TestCliCommands:
         # Setup mocks
         mock_args = MagicMock()
         mock_args.model = None
+        mock_args.temperature = None
 
         mock_config_instance = MagicMock()
-        mock_config_instance.api_token = "test_token"
         mock_config_instance.model = "default_model"
+        mock_config_instance.temperature = 0.7
         mock_config.return_value = mock_config_instance
+
+        mock_ensure_token.return_value = "test_token"
 
         mock_git_instance = MagicMock()
         mock_git_instance.files_status = "M file.py"
         mock_git_instance.diff = "diff content"
         mock_git.return_value = mock_git_instance
 
-        mock_generator_instance = MagicMock()
-        mock_generator_instance.generate.return_value = "feat: add new feature"
-        mock_generator.return_value = mock_generator_instance
-
-        mock_format.return_value = "formatted message"
+        mock_generate_message.return_value = "formatted message"
         mock_prompt.return_value = True  # User confirms the commit
+        mock_commit_with_message.return_value = True
 
         # Call the function
         handle_commit(mock_args)
 
         # Verify the correct calls were made
         mock_config.assert_called_once()
+        mock_ensure_token.assert_called_once_with(mock_config_instance)
         mock_git.assert_called_once()
-        mock_generator.assert_called_once_with("test_token", "default_model")
-        mock_generator_instance.generate.assert_called_once_with(
-            "M file.py", "diff content"
+        mock_generate_message.assert_called_once_with(
+            mock_git_instance, "test_token", "default_model", 0.7
         )
-        mock_format.assert_called_once_with("feat: add new feature")
         mock_print.assert_called_once_with("formatted message")
         mock_prompt.assert_called_once_with("formatted message")
-        mock_git.git_commit.assert_called_once_with("formatted message")
+        mock_commit_with_message.assert_called_once_with("formatted message")
+        
+    @patch("acmsg.cli.commands.Config")
+    @patch("acmsg.cli.commands.GitUtils")
+    @patch("acmsg.cli.commands.ensure_api_token_configured")
+    @patch("acmsg.cli.commands.generate_commit_message")
+    @patch("acmsg.cli.commands.print_message")
+    @patch("acmsg.cli.commands.prompt_for_action")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_handle_commit_edit_then_commit(
+        self,
+        mock_stdout,
+        mock_prompt,
+        mock_print,
+        mock_generate_message,
+        mock_ensure_token,
+        mock_git,
+        mock_config,
+    ):
+        """Test commit handling with edit then commit."""
+        # Setup mocks
+        mock_args = MagicMock()
+        mock_args.model = None
+        mock_args.temperature = None
+
+        mock_config_instance = MagicMock()
+        mock_config_instance.model = "default_model"
+        mock_config_instance.temperature = 0.7
+        mock_config.return_value = mock_config_instance
+
+        mock_ensure_token.return_value = "test_token"
+
+        mock_git_instance = MagicMock()
+        mock_git_instance.files_status = "M file.py"
+        mock_git_instance.diff = "diff content"
+        mock_git.return_value = mock_git_instance
+
+        mock_generate_message.return_value = "formatted message"
+        # First return an edited message, then True to commit
+        mock_prompt.side_effect = ["edited message", True]
+
+        # Call the function with mocked commit_with_message
+        with patch("acmsg.cli.commands.commit_with_message", return_value=True) as mock_commit:
+            handle_commit(mock_args)
+
+            # Verify the correct calls were made
+            mock_config.assert_called_once()
+            mock_ensure_token.assert_called_once_with(mock_config_instance)
+            mock_git.assert_called_once()
+            mock_generate_message.assert_called_once_with(
+                mock_git_instance, "test_token", "default_model", 0.7
+            )
+            mock_print.assert_called_once_with("formatted message")
+            assert mock_prompt.call_count == 2
+            mock_commit.assert_called_once_with("edited message")
 
     @patch("acmsg.cli.commands.Config")
     @patch("acmsg.cli.commands.GitUtils")

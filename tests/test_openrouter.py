@@ -128,6 +128,7 @@ class TestOpenRouterClient:
                 model="test_model",
                 system_prompt="System prompt",
                 user_prompt="User prompt",
+                temperature=0.7,
                 stream=False,
             )
 
@@ -163,6 +164,7 @@ class TestOpenRouterClient:
                     model="test_model",
                     system_prompt="System prompt",
                     user_prompt="User prompt",
+                    temperature=0.7,
                 )
 
         assert "API request failed" in str(exc_info.value)
@@ -181,6 +183,7 @@ class TestOpenRouterClient:
                     model="test_model",
                     system_prompt="System prompt",
                     user_prompt="User prompt",
+                    temperature=0.7,
                 )
 
         # Just check that we get an ApiError - the exact message might contain
@@ -203,6 +206,7 @@ class TestOpenRouterClient:
                     model="test_model",
                     system_prompt="System prompt",
                     user_prompt="User prompt",
+                    temperature=0.7,
                 )
 
         assert "API returned unexpected response format" in str(exc_info.value)
@@ -222,6 +226,7 @@ class TestOpenRouterClient:
                     model="test_model",
                     system_prompt="System prompt",
                     user_prompt="User prompt",
+                    temperature=0.7,
                 )
 
         assert "Failed to parse API response" in str(exc_info.value)
