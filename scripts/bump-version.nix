@@ -70,7 +70,7 @@ writeShellApplication {
       flags+=("--major-version-zero")
     fi
 
-    cz bump "''${flags[@]}" --
+    cz bump "''${flags[@]}" "$explicit_version" --
 
     newVersion=$(cz version --project)
 
