@@ -22,7 +22,7 @@ writeShellApplication {
           flags+=("--increment" "$1")
           shift
           ;;
-        [v]*.*.*)
+        *.*.*)
           explicit_version="''${1/v}"
           shift
           ;;
