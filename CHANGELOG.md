@@ -1,3 +1,16 @@
+## v0.3.1 (2025-05-11)
+
+### Feat
+
+- **api**: add temperature configuration
+- bump-version package -> app; readd commitizen to dev shell
+- **cli**: add interactive API token setup
+
+### Refactor
+
+- **bump-version**: add ability to set version explicitly on cli
+- **tests**: update tests for new temperature functionality
+
 ## v0.2.4 (2025-05-09)
 
 ### Feat
