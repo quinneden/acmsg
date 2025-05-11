@@ -36,7 +36,7 @@ jobs:
         run: |
           uv run \
             cz changelog \
-              --file-name ${{ github.ref_name}}-CHANGELOG.md \
+              --file-name ${{ github.ref_name }}-CHANGELOG.md \
               ${{ github.ref_name }}
 
       - name: Upload Distribution Artifacts
@@ -52,7 +52,7 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
-    needs: publish-to-pypi
+    # needs: publish-to-pypi
 
     permissions:
       contents: write
@@ -70,4 +70,4 @@ jobs:
         with:
           draft: true
           files: dist/*.{whl,tar.gz}
-          body_path: CHANGELOG.md
+          body_path: ./${{ github.ref_name }}-CHANGELOG.md
