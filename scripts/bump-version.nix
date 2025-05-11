@@ -21,6 +21,10 @@ writeShellApplication {
           flags+=("--increment" "$1")
           shift
           ;;
+        [v]*.*.*)
+          explicit_version="''${1/v}"
+          shift
+          ;;
         -*)
           if [[ -n $2 && $2 != -* ]]; then
             flags+=("$1" "$2")
@@ -59,6 +63,10 @@ writeShellApplication {
     elif [[ "v$currentVersion" != "$latestReleaseTag" ]]; then
       echo "error: the version in pyproject.toml doesn't match the latest release tag: $currentVersion != $latestReleaseTag" >&2
       exit 1
+    fi
+
+    if [[ -z $explicit_version ]]; then
+      flags+=("--major-version-zero")
     fi
 
     cz bump "''${flags[@]}" --
