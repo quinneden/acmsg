@@ -49,7 +49,6 @@ ignored_tag_formats = ["latest"]
 version_scheme = "pep440"
 version_provider = "pep621"
 update_changelog_on_bump = true
-major_version_zero = true
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]
