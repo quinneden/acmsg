@@ -39,10 +39,10 @@ jobs:
           path: |
             dist/
 
-      # - name: uv publish
-      #   run: uv publish
-      #   env:
-      #     UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      - name: uv publish
+        run: uv publish
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
 
   create-release:
     runs-on: ubuntu-latest
