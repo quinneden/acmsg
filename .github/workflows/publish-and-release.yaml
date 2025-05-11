@@ -43,16 +43,18 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: package-dist
-          path: dist/
+          path: |
+            dist/
+            ${{ github.ref_name }}-CHANGELOG.md
 
-      - name: uv publish
-        run: uv publish
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      # - name: uv publish
+      #   run: uv publish
+      #   env:
+      #     UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
 
   create-release:
     runs-on: ubuntu-latest
-    # needs: publish-to-pypi
+    needs: publish-to-pypi
 
     permissions:
       contents: write
@@ -63,11 +65,13 @@ jobs:
         uses: actions/download-artifact@v4.3.0
         with:
           name: package-dist
-          path: dist/
+          path: |
+            dist/
+            ${{ github.ref_name }}-CHANGELOG.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v2.2.2
         with:
           draft: true
           files: dist/*.{whl,tar.gz}
-          body_path: ./${{ github.ref_name }}-CHANGELOG.md
+          body_path: ${{ github.ref_name }}-CHANGELOG.md
