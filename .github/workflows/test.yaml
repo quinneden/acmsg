@@ -1,15 +1,16 @@
-name: Run Tests
+name: Run Unit Tests
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
+  push:
+    tags:
+      - v*.*.*
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -19,22 +20,22 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5.6.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version-file: "pyproject.toml"
 
-      - name: Sync dependencies
-        run: uv sync --all-extras --dev --locked
+      - name: Run uv sync
+        run: uv sync --all-extras --dev
 
-      - name: Run tests
+      - name: Run pytest
         run: uv run pytest --cov=acmsg --cov-report=xml
+
+      - name: Run mypy
+        run: uv run mypy src/acmsg
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5.4.2
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
-
-      - name: Check types with mypy
-        run: uv run mypy src/acmsg

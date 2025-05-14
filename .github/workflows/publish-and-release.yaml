@@ -1,4 +1,4 @@
-name: Create Release and Publish to PyPI
+name: Release and Publish to PyPI
 on:
   push:
     tags:
@@ -26,20 +26,20 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: uv sync
+      - name: Run uv sync
         run: uv sync --all-extras --dev
 
-      - name: uv build
+      - name: Run uv build
         run: uv build
 
-      - name: Upload Distribution Artifacts
+      - name: Upload distribution artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
           name: package-dist
           path: |
             dist/
 
-      - name: uv publish
+      - name: Run uv publish
         run: uv publish
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
@@ -53,13 +53,13 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download Distribution Artifacts
+      - name: Download distribution artifacts
         uses: actions/download-artifact@v4.3.0
         with:
           name: package-dist
           path: dist/
 
-      - name: Create Release
+      - name: Create release
         uses: softprops/action-gh-release@v2.2.2
         with:
           draft: true
