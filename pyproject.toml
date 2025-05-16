@@ -19,9 +19,6 @@ dependencies = [
   "ollama>=0.4.8",
   "pyyaml (>=6.0.2,<7.0.0)",
   "requests (>=2.32.3,<3.0.0)",
-  "types-colorama>=0.4.15.20240311",
-  "types-pyyaml>=6.0.12.20250402",
-  "types-requests>=2.32.0.20250328",
 ]
 
 [project.urls]
@@ -34,9 +31,16 @@ acmsg = "acmsg.__main__:main"
 dev = [
   "commitizen>=4.6.3",
   "ipython>=9.2.0",
+]
+test = [
   "mypy>=1.15.0",
   "pytest-cov>=4.1.0",
   "pytest>=7.4.0",
+]
+typing = [
+  "types-colorama>=0.4.15.20240311",
+  "types-pyyaml>=6.0.12.20250402",
+  "types-requests>=2.32.0.20250328",
 ]
 
 [build-system]
