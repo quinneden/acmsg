@@ -1,5 +1,4 @@
-default:
-  help
+default: help
 
 help:
   @just --list
